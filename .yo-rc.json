@@ -1,0 +1,40 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "com.limonnana.skate"
+    },
+    "jhipsterVersion": "6.10.5",
+    "applicationType": "monolith",
+    "baseName": "admin02",
+    "packageName": "com.limonnana.skate",
+    "packageFolder": "com/limonnana/skate",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "no",
+    "enableHibernateCache": false,
+    "websocket": false,
+    "databaseType": "mongodb",
+    "devDatabaseType": "mongodb",
+    "prodDatabaseType": "mongodb",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "maven",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "YTI2N2FlNzExNmE2Nzc5NjA5M2U5M2FmZDgzM2I2MmJiM2Y4YmRkMjZmOTVjNDk0ZWNkMWU2OTAyZDhhMTE2M2EyMjk0ZTdjYzk1NjUzYzgzNDI5NzY4ZTI1YzNiYzA5OTA0MjgwN2Y3OTRiMjUwYmNlMmQzOWU1ZDcyNTI3ZjU=",
+    "embeddableLaunchScript": false,
+    "useSass": true,
+    "clientPackageManager": "npm",
+    "clientFramework": "angularX",
+    "clientTheme": "none",
+    "clientThemeVariant": "",
+    "creationTimestamp": 1635067673778,
+    "testFrameworks": [],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [],
+    "enableTranslation": false,
+    "blueprints": []
+  }
+}

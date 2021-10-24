@@ -1,0 +1,16 @@
+version: '2'
+services:
+  admin02-mongodb:
+    image: mongo:4.2.7
+    ports:
+      - '27017:27017'
+    command: mongos --configdb csvr/admin02-mongodb-config --bind_ip 0.0.0.0
+  admin02-mongodb-node:
+    build:
+      context: .
+      dockerfile: mongodb/MongoDB.Dockerfile
+    command: mongod --shardsvr --replSet rs1
+  admin02-mongodb-config:
+    image: mongo:4.2.7
+    container_name: admin02-mongodb-config
+    command: mongod --configsvr --dbpath /data/db --replSet csvr
