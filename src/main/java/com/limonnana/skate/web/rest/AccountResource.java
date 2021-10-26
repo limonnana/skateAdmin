@@ -1,5 +1,6 @@
 package com.limonnana.skate.web.rest;
 
+
 import com.limonnana.skate.domain.User;
 import com.limonnana.skate.repository.UserRepository;
 import com.limonnana.skate.security.SecurityUtils;
@@ -10,13 +11,11 @@ import com.limonnana.skate.service.dto.UserDTO;
 import com.limonnana.skate.web.rest.errors.*;
 import com.limonnana.skate.web.rest.vm.KeyAndPasswordVM;
 import com.limonnana.skate.web.rest.vm.ManagedUserVM;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.*;
@@ -47,6 +46,7 @@ public class AccountResource {
         this.userRepository = userRepository;
         this.userService = userService;
         this.mailService = mailService;
+
     }
 
     /**
@@ -64,7 +64,7 @@ public class AccountResource {
             throw new InvalidPasswordException();
         }
         User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
-        mailService.sendActivationEmail(user);
+     //   mailService.sendActivationEmail(user);
     }
 
     /**
@@ -80,6 +80,7 @@ public class AccountResource {
             throw new AccountResourceException("No user was found for this activation key");
         }
     }
+
 
     /**
      * {@code GET  /authenticate} : check if the user is authenticated, and return its login.
@@ -116,16 +117,16 @@ public class AccountResource {
     @PostMapping("/account")
     public void saveAccount(@Valid @RequestBody UserDTO userDTO) {
         String userLogin = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccountResourceException("Current user login not found"));
-        Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
-        if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
-            throw new EmailAlreadyUsedException();
-        }
+      //  Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
+       // if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
+      //      throw new EmailAlreadyUsedException();
+       // }
         Optional<User> user = userRepository.findOneByLogin(userLogin);
         if (!user.isPresent()) {
             throw new AccountResourceException("User could not be found");
         }
         userService.updateUser(userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(),
-            userDTO.getLangKey(), userDTO.getImageUrl());
+            userDTO.getLangKey(), userDTO.getPhone(), userDTO.getCountry());
     }
 
     /**

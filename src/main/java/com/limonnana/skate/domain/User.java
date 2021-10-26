@@ -48,12 +48,26 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @Field("last_name")
     private String lastName;
 
+    @Size(min = 9, max = 13)
+    @Field("phone")
+    private String phone;
+
+    @Size(max = 30)
+    @Field("country")
+    private String country;
+
     @Email
-    @Size(min = 5, max = 254)
-    @Indexed
+    @Size(max = 254)
     private String email;
 
     private boolean activated = false;
+    private boolean player = false;
+
+    @Field("profilePicture")
+    private String profilePicture;
+
+    @Field("picture")
+    private String picture;
 
     @Size(min = 2, max = 10)
     @Field("lang_key")
@@ -208,11 +222,54 @@ public class User extends AbstractAuditingEntity implements Serializable {
             "login='" + login + '\'' +
             ", firstName='" + firstName + '\'' +
             ", lastName='" + lastName + '\'' +
+            ", phone='" + phone + '\'' +
             ", email='" + email + '\'' +
+            ", country='" + country + '\'' +
             ", imageUrl='" + imageUrl + '\'' +
+            ", player='" + player + '\'' +
             ", activated='" + activated + '\'' +
             ", langKey='" + langKey + '\'' +
             ", activationKey='" + activationKey + '\'' +
             "}";
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public boolean isPlayer() {
+        return player;
+    }
+
+    public void setPlayer(boolean player) {
+        this.player = player;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }

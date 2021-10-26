@@ -38,7 +38,7 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27017
-      database: admin02
+      database: skate03
   mail:
     host: localhost
     port: 25

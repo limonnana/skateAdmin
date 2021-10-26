@@ -1,10 +1,16 @@
 package com.limonnana.skate.web.rest;
 
 import com.limonnana.skate.config.Constants;
+import com.limonnana.skate.domain.ContributionForm;
+import com.limonnana.skate.domain.Seccion;
+import com.limonnana.skate.domain.Trick;
 import com.limonnana.skate.domain.User;
+import com.limonnana.skate.repository.SeccionRepository;
+import com.limonnana.skate.repository.TrickRepository;
 import com.limonnana.skate.repository.UserRepository;
 import com.limonnana.skate.security.AuthoritiesConstants;
 import com.limonnana.skate.service.MailService;
+import com.limonnana.skate.service.dto.PictureDTO;
 import org.springframework.data.domain.Sort;
 import java.util.Collections;
 import com.limonnana.skate.service.UserService;
@@ -72,12 +78,22 @@ public class UserResource {
 
     private final UserRepository userRepository;
 
+    private final TrickRepository trickRepository;
+
     private final MailService mailService;
 
-    public UserResource(UserService userService, UserRepository userRepository, MailService mailService) {
+    private final SeccionRepository seccionRepository;
+
+    public UserResource(TrickRepository trickRepository,
+                        UserService userService,
+                        UserRepository userRepository,
+                        MailService mailService,
+                        SeccionRepository seccionRepository) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.mailService = mailService;
+        this.trickRepository = trickRepository;
+        this.seccionRepository = seccionRepository;
     }
 
     /**
@@ -102,9 +118,8 @@ public class UserResource {
             // Lowercase the user login before comparing with database
         } else if (userRepository.findOneByLogin(userDTO.getLogin().toLowerCase()).isPresent()) {
             throw new LoginAlreadyUsedException();
-        } else if (userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).isPresent()) {
-            throw new EmailAlreadyUsedException();
-        } else {
+        }
+         else {
             User newUser = userService.createUser(userDTO);
             mailService.sendCreationEmail(newUser);
             return ResponseEntity.created(new URI("/api/users/" + newUser.getLogin()))
@@ -112,6 +127,38 @@ public class UserResource {
                 .body(newUser);
         }
     }
+
+    @PostMapping("/users/picture")
+    public ResponseEntity<User> addPicture(@Valid @RequestBody PictureDTO pictureDTO){
+
+        User user = userRepository.findOneByLogin(pictureDTO.getLogin().toLowerCase()).get();
+
+        if(user == null){
+            throw new BadRequestAlertException(" user with that login doesn't exist ", "UserNULL", "UserNULL");
+        }
+        user.setPicture(pictureDTO.getPicture());
+        user = userRepository.save(user);
+
+        return ResponseUtil.wrapOrNotFound(Optional.of(user),
+            HeaderUtil.createAlert(applicationName, "Picture has been updated", user.getLogin()));
+    }
+
+    @PostMapping("/users/profilepicture")
+    public ResponseEntity<User> addProfilePicture(@Valid @RequestBody PictureDTO pictureDTO){
+
+        User user = userRepository.findOneByLogin(pictureDTO.getLogin().toLowerCase()).get();
+
+        if(user == null){
+            throw new BadRequestAlertException(" user with that login doesn't exist ", "UserNULL", "UserNULL");
+        }
+        user.setProfilePicture(pictureDTO.getPicture());
+        user = userRepository.save(user);
+
+        return ResponseUtil.wrapOrNotFound(Optional.of(user),
+            HeaderUtil.createAlert(applicationName, "Profile Picture has been updated", user.getLogin()));
+    }
+
+
 
     /**
      * {@code PUT /users} : Updates an existing User.
@@ -125,11 +172,11 @@ public class UserResource {
     @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO userDTO) {
         log.debug("REST request to update User : {}", userDTO);
-        Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
-        if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
-            throw new EmailAlreadyUsedException();
-        }
-        existingUser = userRepository.findOneByLogin(userDTO.getLogin().toLowerCase());
+       // Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getPhone());
+       // if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
+      //      throw new EmailAlreadyUsedException();
+      //  }
+        Optional<User>existingUser = userRepository.findOneByLogin(userDTO.getLogin().toLowerCase());
         if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
             throw new LoginAlreadyUsedException();
         }
@@ -196,5 +243,112 @@ public class UserResource {
         log.debug("REST request to delete User: {}", login);
         userService.deleteUser(login);
         return ResponseEntity.noContent().headers(HeaderUtil.createAlert(applicationName,  "A user is deleted with identifier " + login, login)).build();
+    }
+
+    @PostMapping("/users/contribution")
+    public ResponseEntity<User> createContribution(@Valid @RequestBody ContributionForm contributionForm) throws URISyntaxException {
+        log.debug("REST request to save Contribution : {}", contributionForm);
+
+        User user = null;
+
+        if(contributionForm.getPhone() != null){
+
+           Optional<User> userOptional = userRepository.findOneByLogin(contributionForm.getPhone());  //.get();
+            if(!userOptional.isPresent()){
+                userOptional = userRepository.findOneByPhone(contributionForm.getPhone());   //.get();
+            }
+            if(userOptional.isPresent()){
+                user = userOptional.get();
+            }
+        }
+        if(user == null){
+
+            user = new User();
+            String fullName = contributionForm.getUserFullName().trim();
+            int location = fullName.indexOf(" ");
+            String firstName = fullName.substring(0, location);
+            String lastName = fullName.substring(location + 1);
+            user.setLogin(contributionForm.getPhone());
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setPhone(contributionForm.getPhone());
+            user.setActivated(true);
+
+            user = userService.registerUserFromContribution(user);
+        }
+
+        Trick trick = trickRepository.findById(contributionForm.getTrick().getId()).get();
+        Seccion seccion = new Seccion();
+        seccion.setUser(user);
+        String amount = contributionForm.getAmount();
+        int shekel = Integer.parseInt(amount);
+        seccion.setShekel(shekel);
+        seccion.setPorcentaje(calculatePorcentage(shekel, trick.getObjectiveAmount()));
+        trick.getSecciones().add(seccion);
+        int ca = calculateCurrentAmount(trick.getSecciones());
+
+        if(ca > trick.getObjectiveAmount()){
+            trick.setObjectiveAmount(ca);
+            trick = resetTrickQuantities(trick);
+            }
+        trick.setCurrentAmount(ca);
+        trick = setTotalPercentages(trick);
+        seccion = seccionRepository.save(seccion);
+        trick.getSecciones().add(seccion);
+        trickRepository.save(trick);
+
+        return ResponseEntity.created(new URI("/api/users/" + user.getLogin()))
+            .headers(HeaderUtil.createAlert(applicationName,  "A Tip is created with identifier " + seccion.getId(), seccion.getId()))
+            .body(user);
+    }
+
+    public User userDTOToUser(UserDTO userDTO){
+        User user = new User();
+        user.setLogin(userDTO.getPhone());
+        user.setPhone(userDTO.getPhone());
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setEmail(userDTO.getEmail());
+        return user;
+    }
+
+    private int calculatePorcentage(int shekel, int objectiveAmount){
+        float shekelF = shekel;
+        float objectiveAmountF = objectiveAmount;
+        float result = (shekelF / objectiveAmountF) * 100;
+        return (int)result;
+    }
+
+    private Trick setTotalPercentages(Trick trick){
+
+        float ca = calculateCurrentAmount(trick.getSecciones());
+        float finalAmount = trick.getObjectiveAmount().intValue();
+        float toGo = finalAmount - ca;
+        float percentageDone = (ca / finalAmount) * 100;
+        float percentageToGo = 100 - percentageDone;
+        int pd = Math.round(percentageDone);
+        int ptg = Math.round(percentageToGo);
+        trick.setPercentageCovered(pd);
+        trick.setPercentageToGo(ptg);
+        return trick;
+    }
+
+    private int calculateCurrentAmount(Set<Seccion> secciones){
+        int result = 0;
+
+        for(Seccion s : secciones){
+            result = result + s.getShekel();
+        }
+        return result;
+    }
+
+    private Trick resetTrickQuantities(Trick trick){
+
+        for(Seccion s : trick.getSecciones()){
+            int newPorcentaje = calculatePorcentage(s.getShekel(), trick.getObjectiveAmount());
+            s.setPorcentaje(newPorcentaje);
+            seccionRepository.save(s);
+        }
+        return trick;
     }
 }

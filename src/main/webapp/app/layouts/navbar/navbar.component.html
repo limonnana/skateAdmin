@@ -22,12 +22,44 @@
                     <span>
                         <fa-icon icon="th-list"></fa-icon>
                         <span>
-                            Entities
+                            &nbsp;   Main
                         </span>
                     </span>
                 </a>
                 <ul class="dropdown-menu" ngbDropdownMenu aria-labelledby="entity-menu">
                     <!-- jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here -->
+                    <li>
+                        <a class="dropdown-item" routerLink="event" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
+                            <fa-icon icon="asterisk" [fixedWidth]="true"></fa-icon>
+                            <span>Events</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" routerLink="admin/user-management" routerLinkActive="active" (click)="collapseNavbar()">
+                            <fa-icon icon="user" [fixedWidth]="true"></fa-icon>
+                            <span>Users</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a class="dropdown-item" routerLink="player" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
+                            <fa-icon icon="asterisk" [fixedWidth]="true"></fa-icon>
+                            <span>Players</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" routerLink="trick" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
+                            <fa-icon icon="asterisk" [fixedWidth]="true"></fa-icon>
+                            <span>Tricks</span>
+                        </a>
+                    </li>
+                   
+                    <li>
+                        <a class="dropdown-item" routerLink="spot" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
+                            <fa-icon icon="asterisk" [fixedWidth]="true"></fa-icon>
+                            <span>Spots</span>
+                        </a>
+                    </li>
                 </ul>
             </li>
             <li *jhiHasAnyAuthority="'ROLE_ADMIN'" ngbDropdown class="nav-item dropdown pointer" display="dynamic" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
