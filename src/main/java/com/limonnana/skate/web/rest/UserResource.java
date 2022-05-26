@@ -131,11 +131,22 @@ public class UserResource {
     @PostMapping("/users/picture")
     public ResponseEntity<User> addPicture(@Valid @RequestBody PictureDTO pictureDTO){
 
-        User user = userRepository.findOneByLogin(pictureDTO.getLogin().toLowerCase()).get();
+        User user = null;
+
+        try {
+            user = userRepository.findOneByLogin(pictureDTO.getLogin().toLowerCase()).get();
+        }catch (Exception e) {
+            log.debug(" user not found with login");
+        }
+        
+        if(user == null){
+            user = userRepository.findOneById(pictureDTO.getLogin()).get();
+        }
 
         if(user == null){
             throw new BadRequestAlertException(" user with that login doesn't exist ", "UserNULL", "UserNULL");
         }
+
         user.setPicture(pictureDTO.getPicture());
         user = userRepository.save(user);
 

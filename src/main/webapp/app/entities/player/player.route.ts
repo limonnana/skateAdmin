@@ -12,6 +12,7 @@ import { PlayerComponent } from './player.component';
 import { PlayerDetailComponent } from './player-detail.component';
 import { PlayerUpdateComponent } from './player-update.component';
 import { ProfilePictureComponent } from './profile-picture/profile-picture.component';
+import { PictureComponent } from './picture/picture.component';
 
 @Injectable({ providedIn: 'root' })
 export class PlayerResolve implements Resolve<IPlayer> {
@@ -84,6 +85,15 @@ export const playerRoute: Routes = [
   {
     path: ':login/profilepicture/:login',
     component: ProfilePictureComponent,
+    data: {
+      authorities: [Authority.ADMIN],
+      pageTitle: 'picture.title',
+    },
+    canActivate: [UserRouteAccessService],
+  },
+  {
+    path: ':login/actionpicture/:login',
+    component: PictureComponent,
     data: {
       authorities: [Authority.ADMIN],
       pageTitle: 'picture.title',

@@ -20,7 +20,7 @@ export class PlayerUpdateComponent implements OnInit {
   events?: IEvent[];
   isNotEditing = false;
   pPicture = '../content/images/default-user-avatar.jpg';
-  picture?: string | null | undefined;
+  actionPicture?: string | null | undefined;
   profilePicture?: string | null | undefined;
   playerId?: string | null | undefined;
   playerName?: string | null | undefined;
@@ -51,6 +51,7 @@ export class PlayerUpdateComponent implements OnInit {
       this.playerId = player.user?.id;
       this.playerName = player.user?.firstName + ' ' + player.user?.lastName;
       this.profilePicture = player.user?.profilePicture;
+      this.actionPicture = player.user?.picture;
     });
     this.loadAllEvents();
   }
