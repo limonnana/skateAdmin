@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption, Pagination } from 'app/shared/util/request-util';
 import { IUser } from './user.model';
+import { IPictureDTO } from './pictureDTO.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -35,5 +36,13 @@ export class UserService {
 
   authorities(): Observable<string[]> {
     return this.http.get<string[]>(SERVER_API_URL + 'api/users/authorities');
+  }
+
+  addProfilePicture(pictureDTO: IPictureDTO): Observable<IUser> {
+    return this.http.post<IUser>(this.resourceUrl + '/profilepicture', pictureDTO);
+  }
+
+  addPicture(pictureDTO: IPictureDTO): Observable<IUser> {
+    return this.http.post<IUser>(this.resourceUrl + '/picture', pictureDTO);
   }
 }

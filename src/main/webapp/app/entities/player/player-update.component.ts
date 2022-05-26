@@ -19,6 +19,11 @@ export class PlayerUpdateComponent implements OnInit {
   isSaving = false;
   events?: IEvent[];
   isNotEditing = false;
+  pPicture = '../content/images/default-user-avatar.jpg';
+  picture?: string | null | undefined;
+  profilePicture?: string | null | undefined;
+  playerId?: string | null | undefined;
+  playerName?: string | null | undefined;
 
   editForm = this.fb.group({
     id: [],
@@ -43,6 +48,9 @@ export class PlayerUpdateComponent implements OnInit {
         this.isNotEditing = true;
       }
       this.updateForm(player);
+      this.playerId = player.user?.id;
+      this.playerName = player.user?.firstName + ' ' + player.user?.lastName;
+      this.profilePicture = player.user?.profilePicture;
     });
     this.loadAllEvents();
   }
