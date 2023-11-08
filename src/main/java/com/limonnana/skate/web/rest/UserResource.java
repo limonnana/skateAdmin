@@ -138,7 +138,7 @@ public class UserResource {
         }catch (Exception e) {
             log.debug(" user not found with login");
         }
-        
+
         if(user == null){
             user = userRepository.findOneById(pictureDTO.getLogin()).get();
         }
